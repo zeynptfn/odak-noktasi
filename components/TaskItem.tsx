@@ -1,22 +1,7 @@
 import React, { useState } from 'react';
 import { Task, SubTask } from '../types';
 import { Check, Trash2, Sparkles, ChevronDown, ChevronUp, PlayCircle } from 'lucide-react';
-// ❌ BUNU SİLİYORUZ:
-// import { generateSubtasks } from '../services/geminiService';
-
-// ✅ Yerel (AI’siz) alt görev üretici
-const generateSubtasks = async (taskTitle: string): Promise<string[]> => {
-  // Burayı istediğin gibi özelleştirebilirsin
-  const base = taskTitle || "Görev";
-
-  return [
-    `${base} için hazırlık yap`,
-    `${base} adımlarını belirle`,
-    `${base} üzerinde odaklı çalışma`,
-    `${base} için kontrol ve düzeltme`,
-    `${base} tamamlandı mı diye gözden geçir`
-  ];
-};
+import { generateSubtasks } from '../services/assistant';
 
 interface TaskItemProps {
   task: Task;
@@ -51,7 +36,6 @@ const TaskItem: React.FC<TaskItemProps> = ({
 
     setIsGenerating(true);
     try {
-      // ✅ Artık Gemini değil, yerel fonksiyon
       const subtaskTitles = await generateSubtasks(task.title);
       const newSubtasks: SubTask[] = subtaskTitles.map(title => ({
         id: crypto.randomUUID(),

@@ -2,30 +2,16 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { TimerMode, Task, DEFAULT_TIMES, SubTask } from './types';
 import CircularTimer from './components/CircularTimer';
 import TaskItem from './components/TaskItem';
-import { 
-  Plus, 
-  BrainCircuit, 
-  Volume2, 
-  VolumeX, 
-  Layout, 
-  Coffee, 
-  Zap 
+import { getMotivation } from './services/assistant';
+import {
+  Plus,
+  BrainCircuit,
+  Volume2,
+  VolumeX,
+  Layout,
+  Coffee,
+  Zap
 } from 'lucide-react';
-
-// ✅ Gemini yerine yerel motivasyon fonksiyonu
-const getMotivation = async (completedCount: number): Promise<string> => {
-  const messages = [
-    "Harika başlangıç! Küçük adımlar büyük sonuçlar doğurur.",
-    "Süpersin! Her odak döngüsü seni hedefine biraz daha yaklaştırıyor.",
-    "Devam et! Vazgeçmeyenler her zaman kazanmaz ama kazananlar asla vazgeçmez.",
-    "Odaklanman sayesinde beynin sana teşekkür ediyor.",
-    "Bugünkü emeğin, yarının rahatlığı olacak. Devam! 💪",
-    "Zor geldiğinde unutma: Başlamış olman bile çoğu kişiden ileride olduğun anlamına gelir."
-  ];
-
-  const index = Math.min(completedCount - 1, messages.length - 1);
-  return messages[index] ?? messages[messages.length - 1];
-};
 
 const App: React.FC = () => {
   // -- State --
@@ -80,7 +66,6 @@ const App: React.FC = () => {
         ));
       }
 
-      // ✅ Artık yerel motivasyon fonksiyonundan geliyor
       const quote = await getMotivation(dailyCompleted + 1);
       setMotivation(quote);
     }
@@ -170,7 +155,6 @@ const App: React.FC = () => {
         </div>
 
         <div className="mt-auto text-xs text-slate-500">
-            {/* İstersen tamamen silebilirsin */}
             <p>Odaklan, üret, tekrarla.</p>
             <p>© 2024 Odak Noktası</p>
         </div>
