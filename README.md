@@ -23,8 +23,8 @@ Pomodoro tekniğiyle çalışırken görevleri takip etmeye yarayan bir odaklanm
 ## Geliştirme süreci ve AI kullanımı
 
 1. **Prototip: Google AI Studio.** İlk sürümü Google AI Studio'da Gemini ile oluşturdum. O sürümde alt görev önerileri ve motivasyon mesajları Gemini API'sinden geliyordu.
-2. **Gerçek bir projeye taşıma.** AI Studio'nun ürettiği kodu yerelde çalışan bir Vite + npm projesine taşıdım ve Capacitor ile Android projesini oluşturdum.
-3. **Gemini çağrılarını uygulamadan çıkarma.** Gemini'ye istekler doğrudan uygulamanın içinden gidiyordu. Bu, API anahtarının web paketine ve APK'ya gömülmesi, yani uygulamayı indiren herkesin anahtara ulaşabilmesi demekti. Bu iki özelliği yerel, kural tabanlı fonksiyonlarla değiştirdim ([`services/assistant.ts`](services/assistant.ts)). Fonksiyonlar `async` imzasını koruyor. Böylece LLM ileride bir backend üzerinden, bileşenlere dokunmadan geri eklenebilir.
+2. **Gerçek bir projeye taşıma: ChatGPT.** AI Studio'nun ürettiği kodu ChatGPT'nin yardımıyla yerelde çalışan bir Vite + npm projesine taşıdım. Capacitor ile Android projesini oluşturdum ve APK'yı telefonumda denedim.
+3. **Gemini çağrılarını uygulamadan çıkarma.** Uygulamanın internet olmadan da rahatça kullanılabilmesini istedim. Bu yüzden, yine ChatGPT ile, iki AI özelliğini yerel, kural tabanlı fonksiyonlarla değiştirdim ([`services/assistant.ts`](services/assistant.ts)). Bunun bir güvenlik artısı da oldu: Gemini istekleri doğrudan uygulamanın içinden gittiği için, bu özellikler kalsaydı API anahtarının APK'ya gömülmesi gerekecekti. Artık uygulamada anahtar yok. Fonksiyonlar `async` imzasını koruyor. Böylece LLM ileride bir backend üzerinden, bileşenlere dokunmadan geri eklenebilir.
 4. **Claude Code ile kod incelemesi ve test.** Repoyu paylaşmadan önce kodu Claude Code ile inceledim. AI Studio'dan gelen kodda iki hata çıktı (aşağıda). İkisinde de tahminle düzeltmek yerine önce hata yeniden üretildi, sonra düzeltildi. Claude Code ile yapılan commit'lerde bu, `Co-Authored-By: Claude` satırıyla görünüyor.
 
 ## Karşılaştığım problemler ve çözümleri
@@ -82,14 +82,14 @@ Testler artık geçiyor: [`App.test.tsx`](App.test.tsx), commit [`4f48920`](../.
 
 - İlk commit'e `node_modules` (5.846 dosya) da girmişti. `.gitignore` ekleyip depodan çıkardım. Build çıktısı `dist/` aynı sebeple hâlâ takip ediliyordu. Onu da `git rm -r --cached` ile takipten çıkardım. API anahtarı yanlışlıkla commit'lenmesin diye `.env` dosyalarını da ignore listesine ekledim.
 - AI Studio'dan kalan, React 19'u CDN'den yükleyen `importmap` artık kullanılmıyordu: Vite her şeyi paketliyor ve proje React 18 kullanıyor. Kaldırdım.
-- `generateSubtasks` ve `getMotivation` hem bileşenlerin içinde hem de hiç kullanılmayan `geminiService.ts` dosyasında tanımlıydı. Tek serviste birleştirdim ve AI sohbetinden kalan yorumları temizledim.
+- `generateSubtasks` ve `getMotivation` hem bileşenlerin içinde hem de hiç kullanılmayan `geminiService.ts` dosyasında tanımlıydı. Tek serviste birleştirdim ve ChatGPT'den kalan yorumları temizledim.
 - `npm audit`'in bildirdiği 9 açığı (1 kritik, 8 yüksek; hepsi geliştirme araçlarında) semver uyumlu güncellemelerle kapattım.
 
 ## Bilinen eksikler ve sonraki adımlar
 
+- **Çevrimdışı hedefi yarım kaldı.** Gemini'yi internetsiz kullanım için kaldırdım, ama Tailwind (Play CDN), Inter fontu ve zil sesi hâlâ internetten yükleniyor. Android uygulaması çevrimdışıyken stilsiz açılabilir. → Tailwind'i build'e dahil etmek, fontu ve sesi uygulamayla paketlemek.
 - **Veriler kalıcı değil.** Görevler ve sayaç uygulama kapanınca sıfırlanıyor; "Günlük Başarı" da gün değişince sıfırlanmıyor. → `localStorage` / Capacitor Preferences ile saklamak ve tarihe göre sıfırlamak.
 - **Arka planda süre kayabilir.** Sayaç her saniye `setInterval` ile azalıyor. Telefon kilitlenince ya da uygulama arka plana alınınca WebView zamanlayıcıları yavaşlatabilir ya da durdurabilir. → Bitiş zamanını saklayıp kalan süreyi ondan hesaplamak, tur bitince yerel bildirim göndermek (Capacitor Local Notifications).
-- **İnternet bağımlılığı.** Tailwind (Play CDN), Inter fontu ve zil sesi internetten yükleniyor; Android uygulaması çevrimdışıyken stilsiz açılabilir. → Tailwind'i build'e dahil etmek, fontu ve sesi uygulamayla paketlemek.
 - **Alt görevler şablon tabanlı.** → LLM'i güvenli şekilde geri getirmek: API anahtarını sunucuda tutan küçük bir backend (ör. serverless fonksiyon) ve yapılandırılmış JSON çıktısıyla göreve özel alt görevler üretmek.
 
 ## Çalıştırma
