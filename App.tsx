@@ -34,17 +34,22 @@ const App: React.FC = () => {
   }, [soundEnabled]);
 
   // -- Timer Logic --
+  // A session completes only while the timer is running, and the timer is
+  // rewound right away, so neither the effect re-running after the stop nor
+  // pressing start at 00:00 can count the same session twice.
   useEffect(() => {
-    let interval: number;
+    if (!isActive) return;
 
-    if (isActive && timeLeft > 0) {
-      interval = window.setInterval(() => {
-        setTimeLeft((prev) => prev - 1);
-      }, 1000);
-    } else if (timeLeft === 0) {
+    if (timeLeft === 0) {
       setIsActive(false);
+      setTimeLeft(DEFAULT_TIMES[mode]);
       handleTimerComplete();
+      return;
     }
+
+    const interval = window.setInterval(() => {
+      setTimeLeft((prev) => prev - 1);
+    }, 1000);
 
     return () => clearInterval(interval);
   }, [isActive, timeLeft]);
